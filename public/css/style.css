@@ -8,6 +8,10 @@
     --success: #4f8f64;
     --font-family: 'Open Sans', sans-serif;
     --font-size-small: 15px;
+    --font-size-regular: 16px;
+    --font-weight-regular: 400;
+    --font-weight-semi-bold: 600;
+    --font-weight-bold: 700;
     --box-shadow: 0 1px 2px 0 rgb(60 64 67 / 30%), 0 1px 3px 1px rgb(60 64 67 / 15%);
     --border-radius: 3px;
     --border: 1px solid #ddd;
@@ -111,6 +115,10 @@ ul {
     margin-right: 50px;
 }
 
+.mb-20 {
+    margin-bottom: 20px;
+}
+
 /* Paddings */
 .p-5 {
     padding: 5px;
@@ -164,9 +172,53 @@ ul {
     background-color: white;
 }
 
+.block {
+    padding: 25px;
+    border-radius: var(--border-radius);
+    background-color: white;
+    box-shadow: var(--box-shadow);
+}
+
 /* General */
 .content {
-    max-width: 1000px;
+    max-width: 1200px;
+}
+
+.app-content {
+    background-color: var(--gray-light);
+}
+
+/* Formulaire */
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.form-row label {
+    margin-bottom: 5px;
+    font-weight: var(--font-weight-semi-bold);
+    color: var(--color-dark);
+}
+
+.form-row input, .form-row textarea {
+    font-family: var(--font-family);
+    font-size: var(--font-size-regular);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    background-color: var(--gray-light);
+}
+
+.form-row textarea {
+    min-height: 150px;
+}
+
+.form-errors {
+    color: var(--warning);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semi-bold);
 }
 
 /* Header */
@@ -202,7 +254,7 @@ footer {
 
 /* Sidebar */
 .sidebar {
-    min-width: 1200px;
+    min-width: 200px;
 }
 
 .sidebar-nav a {
