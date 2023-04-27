@@ -14,6 +14,7 @@ class HomeController extends AbstractController
 
         $questions = [
             [
+                'id' => 1,
                 'title'=> 'Je suis une question',
                 'content'=> 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Officiis, quis odit! Odit earum quisquam ea animi in qui sit quia. Consequatur illum voluptas quidem, sed et numquam neque aspernatur quibusdam.',
                 'rating'=> 0,
@@ -24,11 +25,12 @@ class HomeController extends AbstractController
                 'nbResponse'=> 5
             ],
             [
+                'id' => 2,
                 'title'=> 'Je suis une question',
                 'content'=> 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Officiis, quis odit! Odit earum quisquam ea animi in qui sit quia. Consequatur illum voluptas quidem, sed et numquam neque aspernatur quibusdam.',
                 'rating'=> -15,
                 'author' => [
-                    'name'=> 'Pascal Praud',
+                    'name'=> 'Pascal Prod',
                     'avatar' => 'https://randomuser.me/api/portraits/men/40.jpg'
                 ],
                 'nbResponse'=> 25
