@@ -13,11 +13,16 @@
     <div class="block">
         <div class="d-flex flex-row-nowrap align-items-center pb-30">
             {% include "./partials/_rating.html.twig" with {rating: question.rating, from: 'question', id: question.id} %}
-            <h3>{{question.title}}</h3>
-            <div class="question-tag">Question</div>
-            <img src="{{question.author.image}}" alt="avatar" class="avatar ml-auto">
+            <div class=" d-flex flex-wrap-nowrap flex-fill">
+                <h3>{{question.title}}</h3>
+                <div class="question-tag">Question</div>
+            </div>
+            <a href="{{path('profile_user', {id: question.author.id})}}">
+                <img src="{{question.author.image}}" alt="avatar" class="avatar ml-auto">
+            </a>
         </div>
         <p class="question-text">{{question.content}}</p>
+
         {% if form is defined %}
             <div class="separator"></div>
             <div class="pb-20"></div>
@@ -33,12 +38,15 @@
                 {{form_end(form)}}
             </div>
         {% endif %}
+        
         {% for comment in question.comments %}
             <div class="question-response-elem d-flex flex-row-nowrap mb-20">
                 {% include "./partials/_rating.html.twig" with {rating: comment.rating, from: 'comment', id: comment.id} %}
                 <div class="d-flex flex-column w-100">
                     <div class="d-flex d-flex-row-nowrap align-items-center pb-10">
-                        <img src="{{comment.author.image}}" alt="avatar" class="avatar-small mr-10">
+                        <a class="d-flex flex-row-nowrap align-items-center" href="{{path('profile_user', {id: comment.author.id})}}">
+                            <img src="{{comment.author.image}}" alt="avatar" class="avatar-small mr-10">
+                        </a>
                         <p class="clickable">{{comment.author.fullname}}</p>
                         <span class="ml-auto">{{comment.createdAt | ago(locale= 'fr')}}</span>
                     </div>
