@@ -11,7 +11,7 @@
         </a>
 
 
-        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
             <a href="{{path('show_questions')}}" class="{{app.request.pathinfo == path('show_questions') ? 'active' : ''}}"">
                 <i class="fa-solid fa-pen mr-5"></i>
                 Mes questions
