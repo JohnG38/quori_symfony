@@ -7,12 +7,14 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\ResetPasswordRepository;
 use App\Repository\UserRepository;
+use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\DependencyInjection\Security\UserProvider\EntityFactory;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -21,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class SecurityController extends AbstractController
@@ -132,7 +135,7 @@ class SecurityController extends AbstractController
                 $resetEmail = new TemplatedEmail();
                 $resetEmail->to($email)
                             ->subject('Demande de reinitialisation de mot de passe')
-                            ->htmlTemplate('@email_templates/resest-password-request.html.twig')
+                            ->htmlTemplate('@email_templates/reset-password-request.html.twig')
                             ->context([
                                 'fullname' => $user->getFullname(),
                                 'token' => $token
@@ -154,8 +157,57 @@ class SecurityController extends AbstractController
         return $this->render('security/reset-password-request.html.twig', ['form' => $emailForm->createView()]);
     }
 
-    #[Route('/reset-password/{token}', name: 'rest-password')]
-    public function resetPassword() {
+    #[Route('/reset-password/{token}', name: 'reset-password')]
+    public function resetPassword(string $token, ResetPasswordRepository $resetPasswordRepository, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher) {
+        // verifier que le token est bien dans la bdd
+        $resetPassword = $resetPasswordRepository->findOneBy(['token' => $token]);
         
+        // verirfier que le token n'a pas expirer
+        if(!$resetPassword || $resetPassword->getExpiredAt() < new DateTime('now')) {
+
+            if($resetPassword) {
+                $em->remove($resetPassword);
+                $em->flush();
+            }
+
+            $this->addFlash('error', 'Votre demande a expiré, veuillez refaire une demande.');
+            return $this->redirectToRoute('reset-password-request');
+        }
+        // formulaire pour saisir le new mdp
+        $resetPasswordForm = $this->createFormBuilder()
+                                    ->add('password', PasswordType::class, [
+                                        'label' => "Nouveau mot de passe",
+                                        'constraints' => [
+                                            new Length([
+                                                'min' => 6,
+                                                'minMessage' => 'Le mot de passe doit contenir au moins 6 caratères'
+                                            ]),
+                                            new NotBlank([
+                                                'message' => 'Veuillez saisir ce champ'
+                                            ])
+                                        ]
+                                    ])
+                                    ->getForm();
+
+        $resetPasswordForm->handleRequest($request);
+
+        if($resetPasswordForm->isSubmitted() && $resetPasswordForm->isValid()) {
+            
+            // on recup le user
+            $user = $resetPassword->getUser();
+            // on recup le nouveau pwd depuis le nouveau formulaire
+            $newPassword = $resetPasswordForm->get('password')->getData();
+            $hashedNewPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedNewPassword);
+
+            // on supprime la demande de reset password
+            $em->remove($resetPassword);
+            $em->flush();
+
+            $this->addFlash('success', 'Votre mot de passe a bien été modifié.');
+            return $this->redirectToRoute('signin');
+
+        }
+        return $this->render('security/reset-password-form.html.twig', ['form' => $resetPasswordForm->createView()]);
     }
 }
