@@ -10,7 +10,6 @@ use App\Repository\UserRepository;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Doctrine\DependencyInjection\Security\UserProvider\EntityFactory;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -19,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -88,7 +88,9 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/reset-password-request', name: 'reset-password-request')]
-    public function resetPasswordRequest(Request $request, UserRepository $userRepository, EntityManagerInterface $em, ResetPasswordRepository $resetPasswordRepository, MailerInterface $mailer) {
+    public function resetPasswordRequest(Request $request, UserRepository $userRepository, EntityManagerInterface $em, ResetPasswordRepository $resetPasswordRepository, MailerInterface $mailer, RateLimiterFactory $passwordRecoveryLimiter) {
+
+        $limiter = $passwordRecoveryLimiter->create($request->getClientIp());
 
         $emailForm = $this->createFormBuilder()
                             ->add('email', EmailType::class, [
@@ -106,6 +108,11 @@ class SecurityController extends AbstractController
         $emailForm->handleRequest($request);
         
         if($emailForm->isSubmitted() && $emailForm->isValid()) {
+            if(!$limiter->consume(1)->isAccepted()) {
+                $this->addFlash('error', 'Vous devez attendre 2 heures pour refaire une demande');
+                return $this->redirectToRoute('signin');
+            }
+    
             $email = $emailForm->get('email')->getData();
             $user = $userRepository->findOneBy(['email' => $email]);
             
@@ -158,7 +165,15 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/reset-password/{token}', name: 'reset-password')]
-    public function resetPassword(string $token, ResetPasswordRepository $resetPasswordRepository, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher) {
+    public function resetPassword(string $token, ResetPasswordRepository $resetPasswordRepository, EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $passwordHasher, RateLimiterFactory $passwordRecoveryLimiter) {
+
+        $limiter = $passwordRecoveryLimiter->create($request->getClientIp());
+
+        if(!$limiter->consume(1)->isAccepted()) {
+            $this->addFlash('error', 'Vous devez attendre 2 heures pour refaire une demande');
+            return $this->redirectToRoute('signin');
+        }
+
         // verifier que le token est bien dans la bdd
         $resetPassword = $resetPasswordRepository->findOneBy(['token' => $token]);
         
