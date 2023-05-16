@@ -132,7 +132,7 @@ class SecurityController extends AbstractController
 
                 $resetPassword = new ResetPassword();
                 $resetPassword->setUser($user)
-                                ->setToken($token)
+                                ->setToken(sha1($token))
                                 ->setExpiredAt(new DateTimeImmutable('+2 hours'));
                 
                 $em->persist($resetPassword);
@@ -175,7 +175,7 @@ class SecurityController extends AbstractController
         }
 
         // verifier que le token est bien dans la bdd
-        $resetPassword = $resetPasswordRepository->findOneBy(['token' => $token]);
+        $resetPassword = $resetPasswordRepository->findOneBy(['token' => sha1($token)]);
         
         // verirfier que le token n'a pas expirer
         if(!$resetPassword || $resetPassword->getExpiredAt() < new DateTime('now')) {
