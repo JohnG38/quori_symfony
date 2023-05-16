@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Services\UploadImageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -18,7 +19,7 @@ class UserController extends AbstractController
 
     #[Route('/user', name: 'current_user_profile')]
     #[IsGranted("IS_AUTHENTICATED_REMEMBERED")]
-    public function currentUserProfile(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
+    public function currentUserProfile(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em, UploadImageService $uploaderPicture): Response
     {
         /**
          * @var User
@@ -36,6 +37,11 @@ class UserController extends AbstractController
             if($newPassword) {
                 $hashedNewPassword = $passwordHasher->hashPassword($currentUser, $newPassword);
                 $currentUser->setPassword($hashedNewPassword);
+            }
+
+            $picture = $profileForm->get('pictureFIle')->getData();
+            if($picture) {
+                $currentUser->setImage($uploaderPicture->uploadProfileImage($picture, $currentUser->getImage()));
             }
 
             $em->flush();

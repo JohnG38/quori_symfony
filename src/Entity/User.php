@@ -45,7 +45,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Ce champ ne peut etre vide.")]
     private ?string $image = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Question::class)]
