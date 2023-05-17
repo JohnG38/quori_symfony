@@ -2,15 +2,14 @@
 
 namespace App\Services;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class UploadImageService {
 
     public function __construct(
         private Filesystem $fs,
-        private string $profilFolder,
-        private string $profilFolderPublic
+        private string $profileFolder,
+        private string $profileFolderPublic
         )
     {
         
@@ -20,12 +19,12 @@ class UploadImageService {
     {
         $ext = $picture->guessExtension() ?? 'bin';
         $filename = bin2hex(random_bytes(10)) . "." . $ext;
-        $picture->move($this->profilFolder, $filename);
+        $picture->move($this->profileFolder, $filename);
         if($oldPicture) {
-            $this->fs->remove($this->profilFolder . "/" . pathinfo($oldPicture, PATHINFO_BASENAME));
+            $this->fs->remove($this->profileFolder . "/" . pathinfo($oldPicture, PATHINFO_BASENAME));
         }
 
-        return $this->profilFolderPublic . "." . $filename;
+        return $this->profileFolderPublic . "." . $filename;
 
     }
 }

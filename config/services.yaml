@@ -25,9 +25,9 @@ services:
             $formLoginAuthenticator: "@security.authenticator.form_login.main"
 
     App\Services\UploadImageService:
-        argument:
+        arguments:
                 $profileFolder: '%kernel.project_dir%/public/profiles'
-                $profileFolderPublic_path: 'profiles'
+                $profileFolderPublic: 'profiles'
 
 
     Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'

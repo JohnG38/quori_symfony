@@ -39,7 +39,7 @@ class UserController extends AbstractController
                 $currentUser->setPassword($hashedNewPassword);
             }
 
-            $picture = $profileForm->get('pictureFIle')->getData();
+            $picture = $profileForm->get('pictureFile')->getData();
             if($picture) {
                 $currentUser->setImage($uploaderPicture->uploadProfileImage($picture, $currentUser->getImage()));
             }
