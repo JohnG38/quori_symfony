@@ -1,25 +1,33 @@
 /* Sidebar */
 .sidebar {
     min-width: 200px;
-}
 
-.sidebar-nav a {
-    display: block;
-    padding: 10px;
-    cursor: pointer;
-    font-size: var(--font-size-small);
-    transition: opacity .4s;
-}
+    @include xs {
+        width: 100%;
+        justify-content: center;
+        padding: 20px 0;
+    }
 
-.sidebar-nav a:hover {
-    opacity: .7;
-}
-
-.sidebar-nav a i {
-    color: var(--color-dark);
+    .sidebar-nav a {
+        display: block;
+        padding: 10px;
+        cursor: pointer;
+        font-size: var(--font-size-small);
+        transition: opacity .4s;
+    }
+    
+    .sidebar-nav a:hover {
+        opacity: .7;
+    }
+    
+    .sidebar-nav a i {
+        color: var(--color-dark);
+    }
+    
 }
 
 .active {
     font-weight: bold;
     color: var(--primary);
 }
+

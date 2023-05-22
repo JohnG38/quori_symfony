@@ -6,20 +6,20 @@
 
 {% block stylesheets %}
     {{parent()}}
-    {{encore_entry_link_tags('question')}}
+    {{ encore_entry_link_tags('question') }}
 {% endblock stylesheets %}
 
 {% block body %}
     <div class="block">
         <div class="d-flex flex-row-nowrap align-items-center pb-30">
             {% include "./partials/_rating.html.twig" with {rating: question.rating, from: 'question', id: question.id} %}
-            <div class=" d-flex flex-wrap-nowrap flex-fill">
+            <div class=" d-flex flex-wrap-nowrap flex-fill align-items-center justify-content-between flex-column-xs question-author">
                 <h3>{{question.title}}</h3>
                 <div class="question-tag">Question</div>
+                <a href="{{path('profile_user', {id: question.author.id})}}">
+                    <img src="{{question.author.image}}" alt="avatar" class="avatar ml-auto">
+                </a>
             </div>
-            <a href="{{path('profile_user', {id: question.author.id})}}">
-                <img src="{{question.author.image}}" alt="avatar" class="avatar ml-auto">
-            </a>
         </div>
         <p class="question-text">{{question.content}}</p>
 
